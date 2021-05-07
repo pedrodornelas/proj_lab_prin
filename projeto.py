@@ -7,7 +7,7 @@
 # GNU Radio Python Flow Graph
 # Title: Not titled yet
 # Author: lucas
-# GNU Radio version: v3.10-compat-xxx-xunknown
+# GNU Radio version: 3.8.1.0
 
 from distutils.version import StrictVersion
 
@@ -21,30 +21,27 @@ if __name__ == '__main__':
         except:
             print("Warning: failed to XInitThreads()")
 
+from PyQt5 import Qt
+from gnuradio import qtgui
+from gnuradio.filter import firdes
+import sip
 from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
 from gnuradio import filter
-from gnuradio.filter import firdes
 from gnuradio import gr
-from gnuradio.fft import window
 import sys
 import signal
-from PyQt5 import Qt
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio.qtgui import Range, RangeWidget
-from PyQt5 import QtCore
-
-
-
 from gnuradio import qtgui
 
 class projeto(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Not titled yet", catch_exceptions=True)
+        gr.top_block.__init__(self, "Not titled yet")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Not titled yet")
         qtgui.util.check_set_qss()
@@ -82,23 +79,156 @@ class projeto(gr.top_block, Qt.QWidget):
         self.radio = radio = 1
         self.pi = pi = 3.141592654
         self.freq = freq = 700
-        self.cut = cut = 6000
+        self.cut = cut = 4000
+        self.An = An = 0
 
         ##################################################
         # Blocks
         ##################################################
-        self._volume_range = Range(0, 30, 1, 1, 200)
-        self._volume_win = RangeWidget(self._volume_range, self.set_volume, 'volume', "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._volume_win)
+        self._volume_range = Range(0, 30, 0.1, 1, 200)
+        self._volume_win = RangeWidget(self._volume_range, self.set_volume, 'volume', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._volume_win)
         self._radio_range = Range(0, 4, 1, 1, 200)
-        self._radio_win = RangeWidget(self._radio_range, self.set_radio, 'radio', "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._radio_win)
+        self._radio_win = RangeWidget(self._radio_range, self.set_radio, 'radio', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._radio_win)
         self._freq_range = Range(0, 1000, 100, 700, 200)
-        self._freq_win = RangeWidget(self._freq_range, self.set_freq, 'freq', "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._freq_win)
-        self._cut_range = Range(0, 14000, 100, 6000, 200)
-        self._cut_win = RangeWidget(self._cut_range, self.set_cut, 'cut', "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._cut_win)
+        self._freq_win = RangeWidget(self._freq_range, self.set_freq, 'freq', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._freq_win)
+        self._cut_range = Range(0, 14000, 100, 4000, 200)
+        self._cut_win = RangeWidget(self._cut_range, self.set_cut, 'cut', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._cut_win)
+        self._An_range = Range(0, 1, 0.05, 0, 200)
+        self._An_win = RangeWidget(self._An_range, self.set_An, 'An', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._An_win)
+        self.qtgui_time_sink_x_0_1_0 = qtgui.time_sink_f(
+            1024, #size
+            samp_rate, #samp_rate
+            "", #name
+            1 #number of inputs
+        )
+        self.qtgui_time_sink_x_0_1_0.set_update_time(0.10)
+        self.qtgui_time_sink_x_0_1_0.set_y_axis(-6, 6)
+
+        self.qtgui_time_sink_x_0_1_0.set_y_label('Amplitude', "")
+
+        self.qtgui_time_sink_x_0_1_0.enable_tags(True)
+        self.qtgui_time_sink_x_0_1_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_time_sink_x_0_1_0.enable_autoscale(True)
+        self.qtgui_time_sink_x_0_1_0.enable_grid(True)
+        self.qtgui_time_sink_x_0_1_0.enable_axis_labels(True)
+        self.qtgui_time_sink_x_0_1_0.enable_control_panel(False)
+        self.qtgui_time_sink_x_0_1_0.enable_stem_plot(False)
+
+
+        labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
+            'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ['blue', 'red', 'green', 'black', 'cyan',
+            'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+        styles = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        markers = [-1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1]
+
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_time_sink_x_0_1_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_time_sink_x_0_1_0.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_0_1_0.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_0_1_0.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_0_1_0.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_0_1_0.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_0_1_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_time_sink_x_0_1_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0_1_0.pyqwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_1_0_win)
+        self.qtgui_freq_sink_x_0_0 = qtgui.freq_sink_f(
+            1024, #size
+            firdes.WIN_BLACKMAN_hARRIS, #wintype
+            0, #fc
+            samp_rate, #bw
+            'Analisador de Espectro', #name
+            1
+        )
+        self.qtgui_freq_sink_x_0_0.set_update_time(0.10)
+        self.qtgui_freq_sink_x_0_0.set_y_axis(-140, 10)
+        self.qtgui_freq_sink_x_0_0.set_y_label('Relative Gain', 'dB')
+        self.qtgui_freq_sink_x_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
+        self.qtgui_freq_sink_x_0_0.enable_autoscale(False)
+        self.qtgui_freq_sink_x_0_0.enable_grid(False)
+        self.qtgui_freq_sink_x_0_0.set_fft_average(1.0)
+        self.qtgui_freq_sink_x_0_0.enable_axis_labels(True)
+        self.qtgui_freq_sink_x_0_0.enable_control_panel(False)
+
+
+        self.qtgui_freq_sink_x_0_0.set_plot_pos_half(not True)
+
+        labels = ['', '', '', '', '',
+            '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ["blue", "red", "green", "black", "cyan",
+            "magenta", "yellow", "dark red", "dark green", "dark blue"]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_freq_sink_x_0_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_freq_sink_x_0_0.set_line_label(i, labels[i])
+            self.qtgui_freq_sink_x_0_0.set_line_width(i, widths[i])
+            self.qtgui_freq_sink_x_0_0.set_line_color(i, colors[i])
+            self.qtgui_freq_sink_x_0_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_freq_sink_x_0_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0_0.pyqwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_0_win)
+        self.qtgui_freq_sink_x_0 = qtgui.freq_sink_f(
+            1024, #size
+            firdes.WIN_BLACKMAN_hARRIS, #wintype
+            0, #fc
+            samp_rate, #bw
+            'Analisador de Espectro', #name
+            1
+        )
+        self.qtgui_freq_sink_x_0.set_update_time(0.10)
+        self.qtgui_freq_sink_x_0.set_y_axis(-140, 10)
+        self.qtgui_freq_sink_x_0.set_y_label('Relative Gain', 'dB')
+        self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
+        self.qtgui_freq_sink_x_0.enable_autoscale(False)
+        self.qtgui_freq_sink_x_0.enable_grid(False)
+        self.qtgui_freq_sink_x_0.set_fft_average(1.0)
+        self.qtgui_freq_sink_x_0.enable_axis_labels(True)
+        self.qtgui_freq_sink_x_0.enable_control_panel(False)
+
+
+        self.qtgui_freq_sink_x_0.set_plot_pos_half(not True)
+
+        labels = ['', '', '', '', '',
+            '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ["blue", "red", "green", "black", "cyan",
+            "magenta", "yellow", "dark red", "dark green", "dark blue"]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_freq_sink_x_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_freq_sink_x_0.set_line_label(i, labels[i])
+            self.qtgui_freq_sink_x_0.set_line_width(i, widths[i])
+            self.qtgui_freq_sink_x_0.set_line_color(i, colors[i])
+            self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win)
         self.low_pass_filter_0_1_0_0 = filter.fir_filter_fff(
             1,
             firdes.low_pass(
@@ -106,46 +236,46 @@ class projeto(gr.top_block, Qt.QWidget):
                 samp_rate,
                 cut,
                 100,
-                window.WIN_HAMMING,
+                firdes.WIN_HAMMING,
                 6.76))
         self.low_pass_filter_0_0_1_0_1 = filter.fir_filter_fff(
             1,
             firdes.low_pass(
                 1,
                 samp_rate,
-                7000,
+                4000,
                 100,
-                window.WIN_HAMMING,
+                firdes.WIN_HAMMING,
                 6.76))
         self.low_pass_filter_0_0_1_0_0_0 = filter.fir_filter_fff(
             1,
             firdes.low_pass(
                 1,
                 samp_rate,
-                7000,
+                4000,
                 100,
-                window.WIN_HAMMING,
+                firdes.WIN_HAMMING,
                 6.76))
         self.low_pass_filter_0_0_1_0_0 = filter.fir_filter_fff(
             1,
             firdes.low_pass(
                 1,
                 samp_rate,
-                7000,
+                4000,
                 100,
-                window.WIN_HAMMING,
+                firdes.WIN_HAMMING,
                 6.76))
         self.low_pass_filter_0_0_1_0 = filter.fir_filter_fff(
             1,
             firdes.low_pass(
                 1,
                 samp_rate,
-                7000,
+                4000,
                 100,
-                window.WIN_HAMMING,
+                firdes.WIN_HAMMING,
                 6.76))
-        self.blocks_wavfile_source_0_1_0 = blocks.wavfile_source('/home/lucas/Documentos/unb/labprincom/proj_lab_prin/RondoAllaTurca.wav', True)
-        self.blocks_wavfile_source_0_1 = blocks.wavfile_source('/home/lucas/Documentos/unb/labprincom/proj_lab_prin/5th_Symphony.wav', True)
+        self.blocks_wavfile_source_0_1_0 = blocks.wavfile_source('/home/pedro/Documentos/UnB/5_Semestre/Lab_princom/proj_lab_prin/RondoAllaTurca.wav', True)
+        self.blocks_wavfile_source_0_1 = blocks.wavfile_source('/home/pedro/Documentos/UnB/5_Semestre/Lab_princom/proj_lab_prin/5th_Symphony.wav', True)
         self.blocks_throttle_0_2_0_1 = blocks.throttle(gr.sizeof_float*1, samp_rate,True)
         self.blocks_throttle_0_2_0_0 = blocks.throttle(gr.sizeof_float*1, samp_rate,True)
         self.blocks_throttle_0_2_0 = blocks.throttle(gr.sizeof_float*1, samp_rate,True)
@@ -154,6 +284,7 @@ class projeto(gr.top_block, Qt.QWidget):
         self.blocks_throttle_0_0_1_0_0_0 = blocks.throttle(gr.sizeof_float*1, samp_rate,True)
         self.blocks_throttle_0_0_1_0_0 = blocks.throttle(gr.sizeof_float*1, samp_rate,True)
         self.blocks_throttle_0_0_0_1_0_0 = blocks.throttle(gr.sizeof_float*1, samp_rate,True)
+        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_float*1, samp_rate,True)
         self.blocks_multiply_xx_0_2_0_0_1 = blocks.multiply_vff(1)
         self.blocks_multiply_xx_0_2_0_0_0_0 = blocks.multiply_vff(1)
         self.blocks_multiply_xx_0_2_0_0_0 = blocks.multiply_vff(1)
@@ -163,18 +294,20 @@ class projeto(gr.top_block, Qt.QWidget):
         self.blocks_add_xx_0_0_0 = blocks.add_vff(1)
         self.audio_sink_1_0 = audio.sink(44100, '', True)
         self.analog_sig_source_x_0_3_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, freq, 2, -1, 0)
-        self.analog_sig_source_x_0_1_3_0_1 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 90000000, 1, 0, 0)
-        self.analog_sig_source_x_0_1_3_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 100000000, 5, 0, 0)
-        self.analog_sig_source_x_0_1_2_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 85000000+(radio*5000000), 1, 0, 0)
-        self.analog_sig_source_x_0_1_0_0_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 105000000, 5, 0, 0)
-        self.analog_sig_source_x_0_1_0_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 95000000, 1, 0, 0)
+        self.analog_sig_source_x_0_1_3_0_1 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 50000, 1, 0, 0)
+        self.analog_sig_source_x_0_1_3_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 70000, 5, 0, 0)
+        self.analog_sig_source_x_0_1_2_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 40000+(radio*10000), 1, 0, 0)
+        self.analog_sig_source_x_0_1_0_0_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 80000, 1, 0, 0)
+        self.analog_sig_source_x_0_1_0_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 60000, 1, 0, 0)
         self.analog_sig_source_x_0_0_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, freq, 1, -1, 0)
+        self.analog_noise_source_x_0 = analog.noise_source_f(analog.GR_GAUSSIAN, An, 0)
 
 
 
         ##################################################
         # Connections
         ##################################################
+        self.connect((self.analog_noise_source_x_0, 0), (self.blocks_throttle_0, 0))
         self.connect((self.analog_sig_source_x_0_0_0_0, 0), (self.blocks_throttle_0_0_2_0, 0))
         self.connect((self.analog_sig_source_x_0_1_0_0_0, 0), (self.blocks_throttle_0_0_1_0_0, 0))
         self.connect((self.analog_sig_source_x_0_1_0_0_0_0, 0), (self.blocks_throttle_0_0_1_0_0_0, 0))
@@ -183,12 +316,14 @@ class projeto(gr.top_block, Qt.QWidget):
         self.connect((self.analog_sig_source_x_0_1_3_0_1, 0), (self.blocks_throttle_0_0_0_1_0_0, 0))
         self.connect((self.analog_sig_source_x_0_3_0_0, 0), (self.blocks_throttle_0_2_0_0, 0))
         self.connect((self.blocks_add_xx_0_0_0, 0), (self.blocks_multiply_xx_0_0_0_0_0, 0))
+        self.connect((self.blocks_add_xx_0_0_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.low_pass_filter_0_1_0_0, 0))
         self.connect((self.blocks_multiply_xx_0_0_0_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.blocks_multiply_xx_0_2_0_0, 0), (self.blocks_add_xx_0_0_0, 1))
         self.connect((self.blocks_multiply_xx_0_2_0_0_0, 0), (self.blocks_add_xx_0_0_0, 2))
         self.connect((self.blocks_multiply_xx_0_2_0_0_0_0, 0), (self.blocks_add_xx_0_0_0, 3))
         self.connect((self.blocks_multiply_xx_0_2_0_0_1, 0), (self.blocks_add_xx_0_0_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.blocks_add_xx_0_0_0, 4))
         self.connect((self.blocks_throttle_0_0_0_1_0_0, 0), (self.blocks_multiply_xx_0_2_0_0_1, 1))
         self.connect((self.blocks_throttle_0_0_1_0_0, 0), (self.blocks_multiply_xx_0_2_0_0, 1))
         self.connect((self.blocks_throttle_0_0_1_0_0_0, 0), (self.blocks_multiply_xx_0_2_0_0_0_0, 1))
@@ -204,14 +339,12 @@ class projeto(gr.top_block, Qt.QWidget):
         self.connect((self.low_pass_filter_0_0_1_0_0_0, 0), (self.blocks_multiply_xx_0_2_0_0, 0))
         self.connect((self.low_pass_filter_0_0_1_0_1, 0), (self.blocks_multiply_xx_0_2_0_0_0_0, 0))
         self.connect((self.low_pass_filter_0_1_0_0, 0), (self.audio_sink_1_0, 0))
-
+        self.connect((self.low_pass_filter_0_1_0_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
+        self.connect((self.low_pass_filter_0_1_0_0, 0), (self.qtgui_time_sink_x_0_1_0, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "projeto")
         self.settings.setValue("geometry", self.saveGeometry())
-        self.stop()
-        self.wait()
-
         event.accept()
 
     def get_volume(self):
@@ -233,6 +366,7 @@ class projeto(gr.top_block, Qt.QWidget):
         self.analog_sig_source_x_0_1_3_0_0.set_sampling_freq(self.samp_rate)
         self.analog_sig_source_x_0_1_3_0_1.set_sampling_freq(self.samp_rate)
         self.analog_sig_source_x_0_3_0_0.set_sampling_freq(self.samp_rate)
+        self.blocks_throttle_0.set_sample_rate(self.samp_rate)
         self.blocks_throttle_0_0_0_1_0_0.set_sample_rate(self.samp_rate)
         self.blocks_throttle_0_0_1_0_0.set_sample_rate(self.samp_rate)
         self.blocks_throttle_0_0_1_0_0_0.set_sample_rate(self.samp_rate)
@@ -241,18 +375,21 @@ class projeto(gr.top_block, Qt.QWidget):
         self.blocks_throttle_0_2_0.set_sample_rate(self.samp_rate)
         self.blocks_throttle_0_2_0_0.set_sample_rate(self.samp_rate)
         self.blocks_throttle_0_2_0_1.set_sample_rate(self.samp_rate)
-        self.low_pass_filter_0_0_1_0.set_taps(firdes.low_pass(1, self.samp_rate, 7000, 100, window.WIN_HAMMING, 6.76))
-        self.low_pass_filter_0_0_1_0_0.set_taps(firdes.low_pass(1, self.samp_rate, 7000, 100, window.WIN_HAMMING, 6.76))
-        self.low_pass_filter_0_0_1_0_0_0.set_taps(firdes.low_pass(1, self.samp_rate, 7000, 100, window.WIN_HAMMING, 6.76))
-        self.low_pass_filter_0_0_1_0_1.set_taps(firdes.low_pass(1, self.samp_rate, 7000, 100, window.WIN_HAMMING, 6.76))
-        self.low_pass_filter_0_1_0_0.set_taps(firdes.low_pass(1, self.samp_rate, self.cut, 100, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0_0_1_0.set_taps(firdes.low_pass(1, self.samp_rate, 4000, 100, firdes.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0_0_1_0_0.set_taps(firdes.low_pass(1, self.samp_rate, 4000, 100, firdes.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0_0_1_0_0_0.set_taps(firdes.low_pass(1, self.samp_rate, 4000, 100, firdes.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0_0_1_0_1.set_taps(firdes.low_pass(1, self.samp_rate, 4000, 100, firdes.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0_1_0_0.set_taps(firdes.low_pass(1, self.samp_rate, self.cut, 100, firdes.WIN_HAMMING, 6.76))
+        self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
+        self.qtgui_freq_sink_x_0_0.set_frequency_range(0, self.samp_rate)
+        self.qtgui_time_sink_x_0_1_0.set_samp_rate(self.samp_rate)
 
     def get_radio(self):
         return self.radio
 
     def set_radio(self, radio):
         self.radio = radio
-        self.analog_sig_source_x_0_1_2_0_0.set_frequency(85000000+(self.radio*5000000))
+        self.analog_sig_source_x_0_1_2_0_0.set_frequency(40000+(self.radio*10000))
 
     def get_pi(self):
         return self.pi
@@ -273,8 +410,14 @@ class projeto(gr.top_block, Qt.QWidget):
 
     def set_cut(self, cut):
         self.cut = cut
-        self.low_pass_filter_0_1_0_0.set_taps(firdes.low_pass(1, self.samp_rate, self.cut, 100, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0_1_0_0.set_taps(firdes.low_pass(1, self.samp_rate, self.cut, 100, firdes.WIN_HAMMING, 6.76))
 
+    def get_An(self):
+        return self.An
+
+    def set_An(self, An):
+        self.An = An
+        self.analog_noise_source_x_0.set_amplitude(self.An)
 
 
 
@@ -286,15 +429,10 @@ def main(top_block_cls=projeto, options=None):
     qapp = Qt.QApplication(sys.argv)
 
     tb = top_block_cls()
-
     tb.start()
-
     tb.show()
 
     def sig_handler(sig=None, frame=None):
-        tb.stop()
-        tb.wait()
-
         Qt.QApplication.quit()
 
     signal.signal(signal.SIGINT, sig_handler)
@@ -304,7 +442,12 @@ def main(top_block_cls=projeto, options=None):
     timer.start(500)
     timer.timeout.connect(lambda: None)
 
+    def quitting():
+        tb.stop()
+        tb.wait()
+    qapp.aboutToQuit.connect(quitting)
     qapp.exec_()
+
 
 if __name__ == '__main__':
     main()
