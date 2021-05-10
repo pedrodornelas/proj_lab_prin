@@ -36,7 +36,7 @@ blocks:
   id: variable_qtgui_range
   parameters:
     comment: ''
-    gui_hint: ''
+    gui_hint: (2,1,1,2)
     label: ''
     min_len: '200'
     orient: Qt.Horizontal
@@ -53,27 +53,6 @@ blocks:
     coordinate: [526, 8]
     rotation: 0
     state: true
-- name: delay
-  id: variable_qtgui_range
-  parameters:
-    comment: ''
-    gui_hint: ''
-    label: ''
-    min_len: '200'
-    orient: Qt.Horizontal
-    rangeType: float
-    start: '0'
-    step: '1'
-    stop: '30'
-    value: '10'
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [636, 7]
-    rotation: 0
-    state: true
 - name: ganho
   id: variable
   parameters:
@@ -83,14 +62,14 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [759, 8]
+    coordinate: [666, 8]
     rotation: 0
     state: enabled
 - name: radio
   id: variable_qtgui_range
   parameters:
     comment: ''
-    gui_hint: ''
+    gui_hint: (1,2,1,1)
     label: ''
     min_len: '200'
     orient: Qt.Horizontal
@@ -123,7 +102,7 @@ blocks:
   id: variable_qtgui_range
   parameters:
     comment: ''
-    gui_hint: ''
+    gui_hint: (1,1,1,1)
     label: ''
     min_len: '200'
     orient: Qt.Horizontal
@@ -922,7 +901,7 @@ blocks:
     fftsize: '1024'
     freqhalf: 'True'
     grid: 'False'
-    gui_hint: ''
+    gui_hint: (6,1,3,2)
     label: Relative Gain
     label1: ''
     label10: ''''''
@@ -1002,7 +981,7 @@ blocks:
     fftsize: '1024'
     freqhalf: 'True'
     grid: 'False'
-    gui_hint: ''
+    gui_hint: (3,2,3,1)
     label: Relative Gain
     label1: ''
     label10: ''''''
@@ -1078,7 +1057,7 @@ blocks:
     ctrlpanel: 'False'
     entags: 'True'
     grid: 'True'
-    gui_hint: ''
+    gui_hint: (3,1,3,1)
     label1: Receptor
     label10: Signal 10
     label2: Original

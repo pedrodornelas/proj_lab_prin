@@ -78,7 +78,6 @@ class projeto(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate = 240000
         self.radio = radio = 1
         self.ganho = ganho = 200
-        self.delay = delay = 10
         self.An = An = 0.1
 
         ##################################################
@@ -86,13 +85,25 @@ class projeto(gr.top_block, Qt.QWidget):
         ##################################################
         self._volume_range = Range(0, 10, 0.1, 0.5, 200)
         self._volume_win = RangeWidget(self._volume_range, self.set_volume, 'volume', "counter_slider", float)
-        self.top_grid_layout.addWidget(self._volume_win)
+        self.top_grid_layout.addWidget(self._volume_win, 1, 1, 1, 1)
+        for r in range(1, 2):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(1, 2):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self._radio_range = Range(0, 4, 0.5, 1, 200)
         self._radio_win = RangeWidget(self._radio_range, self.set_radio, 'radio', "counter_slider", float)
-        self.top_grid_layout.addWidget(self._radio_win)
+        self.top_grid_layout.addWidget(self._radio_win, 1, 2, 1, 1)
+        for r in range(1, 2):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(2, 3):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self._An_range = Range(0, 1, 0.05, 0.1, 200)
         self._An_win = RangeWidget(self._An_range, self.set_An, 'An', "counter_slider", float)
-        self.top_grid_layout.addWidget(self._An_win)
+        self.top_grid_layout.addWidget(self._An_win, 2, 1, 1, 2)
+        for r in range(2, 3):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(1, 3):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self.qtgui_time_sink_x_0_1_0 = qtgui.time_sink_f(
             1024, #size
             samp_rate, #samp_rate
@@ -139,7 +150,11 @@ class projeto(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_0_1_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_time_sink_x_0_1_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0_1_0.pyqwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_1_0_win)
+        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_1_0_win, 3, 1, 3, 1)
+        for r in range(3, 6):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(1, 2):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self.qtgui_freq_sink_x_0_0 = qtgui.freq_sink_f(
             1024, #size
             firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -180,7 +195,11 @@ class projeto(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_freq_sink_x_0_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0_0.pyqwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_0_win)
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_0_win, 3, 2, 3, 1)
+        for r in range(3, 6):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(2, 3):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_f(
             1024, #size
             firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -221,7 +240,11 @@ class projeto(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win)
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win, 6, 1, 3, 2)
+        for r in range(6, 9):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(1, 3):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self.low_pass_filter_0_1_0_0 = filter.fir_filter_fff(
             1,
             firdes.low_pass(
@@ -267,9 +290,6 @@ class projeto(gr.top_block, Qt.QWidget):
                 100,
                 firdes.WIN_HAMMING,
                 6.76))
-        self._delay_range = Range(0, 30, 1, 10, 200)
-        self._delay_win = RangeWidget(self._delay_range, self.set_delay, 'delay', "counter_slider", float)
-        self.top_grid_layout.addWidget(self._delay_win)
         self.blocks_wavfile_source_0_1_2 = blocks.wavfile_source('/home/pedro/Documentos/UnB/5_Semestre/Lab_princom/proj_lab_prin/5th_Symphony.wav', True)
         self.blocks_wavfile_source_0_1_1 = blocks.wavfile_source('/home/pedro/Documentos/UnB/5_Semestre/Lab_princom/proj_lab_prin/RondoAllaTurca.wav', True)
         self.blocks_wavfile_source_0_1_0 = blocks.wavfile_source('/home/pedro/Documentos/UnB/5_Semestre/Lab_princom/proj_lab_prin/Nocturne.wav', True)
@@ -405,12 +425,6 @@ class projeto(gr.top_block, Qt.QWidget):
         self.blocks_multiply_const_vxx_0_0_0_0.set_k(self.ganho)
         self.blocks_multiply_const_vxx_0_0_0_0_0.set_k(self.ganho)
         self.blocks_multiply_const_vxx_0_0_0_0_0_0.set_k(self.ganho)
-
-    def get_delay(self):
-        return self.delay
-
-    def set_delay(self, delay):
-        self.delay = delay
 
     def get_An(self):
         return self.An
