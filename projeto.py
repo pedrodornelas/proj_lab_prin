@@ -74,21 +74,23 @@ class projeto(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.volume = volume = 1
+        self.volume = volume = 0.5
         self.samp_rate = samp_rate = 240000
         self.radio = radio = 1
-        self.An = An = 0
+        self.ganho = ganho = 200
+        self.delay = delay = 10
+        self.An = An = 0.1
 
         ##################################################
         # Blocks
         ##################################################
-        self._volume_range = Range(0, 30, 0.1, 1, 200)
+        self._volume_range = Range(0, 10, 0.1, 0.5, 200)
         self._volume_win = RangeWidget(self._volume_range, self.set_volume, 'volume', "counter_slider", float)
         self.top_grid_layout.addWidget(self._volume_win)
-        self._radio_range = Range(0, 4, 1, 1, 200)
+        self._radio_range = Range(0, 4, 0.5, 1, 200)
         self._radio_win = RangeWidget(self._radio_range, self.set_radio, 'radio', "counter_slider", float)
         self.top_grid_layout.addWidget(self._radio_win)
-        self._An_range = Range(0, 1, 0.05, 0, 200)
+        self._An_range = Range(0, 1, 0.05, 0.1, 200)
         self._An_win = RangeWidget(self._An_range, self.set_An, 'An', "counter_slider", float)
         self.top_grid_layout.addWidget(self._An_win)
         self.qtgui_time_sink_x_0_1_0 = qtgui.time_sink_f(
@@ -111,7 +113,7 @@ class projeto(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_0_1_0.enable_stem_plot(False)
 
 
-        labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
+        labels = ['Receptor', 'Original', 'Signal 3', 'Signal 4', 'Signal 5',
             'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
         widths = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
@@ -265,6 +267,9 @@ class projeto(gr.top_block, Qt.QWidget):
                 100,
                 firdes.WIN_HAMMING,
                 6.76))
+        self._delay_range = Range(0, 30, 1, 10, 200)
+        self._delay_win = RangeWidget(self._delay_range, self.set_delay, 'delay', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._delay_win)
         self.blocks_wavfile_source_0_1_2 = blocks.wavfile_source('/home/pedro/Documentos/UnB/5_Semestre/Lab_princom/proj_lab_prin/5th_Symphony.wav', True)
         self.blocks_wavfile_source_0_1_1 = blocks.wavfile_source('/home/pedro/Documentos/UnB/5_Semestre/Lab_princom/proj_lab_prin/RondoAllaTurca.wav', True)
         self.blocks_wavfile_source_0_1_0 = blocks.wavfile_source('/home/pedro/Documentos/UnB/5_Semestre/Lab_princom/proj_lab_prin/Nocturne.wav', True)
@@ -283,11 +288,16 @@ class projeto(gr.top_block, Qt.QWidget):
         self.blocks_multiply_xx_0_2_0_0_0 = blocks.multiply_vff(1)
         self.blocks_multiply_xx_0_2_0_0 = blocks.multiply_vff(1)
         self.blocks_multiply_xx_0_0_0_0_0 = blocks.multiply_vff(1)
+        self.blocks_multiply_const_vxx_0_0_0_0_0_0 = blocks.multiply_const_ff(ganho)
+        self.blocks_multiply_const_vxx_0_0_0_0_0 = blocks.multiply_const_ff(ganho)
+        self.blocks_multiply_const_vxx_0_0_0_0 = blocks.multiply_const_ff(ganho)
+        self.blocks_multiply_const_vxx_0_0_0 = blocks.multiply_const_ff(ganho)
+        self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_ff(1/ganho)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(volume)
         self.blocks_add_xx_0_0_0 = blocks.add_vff(1)
         self.audio_sink_1_0 = audio.sink(44100, '', True)
         self.analog_sig_source_x_0_1_3_0_1 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 50000, 1, 0, 0)
-        self.analog_sig_source_x_0_1_3_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 80000, 5, 0, 0)
+        self.analog_sig_source_x_0_1_3_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 80000, 1, 0, 0)
         self.analog_sig_source_x_0_1_2_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 35000+(radio*15000), 1, 0, 0)
         self.analog_sig_source_x_0_1_0_0_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 95000, 1, 0, 0)
         self.analog_sig_source_x_0_1_0_0_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 65000, 1, 0, 0)
@@ -306,8 +316,15 @@ class projeto(gr.top_block, Qt.QWidget):
         self.connect((self.analog_sig_source_x_0_1_3_0_1, 0), (self.blocks_throttle_0_0_0_1_0_0, 0))
         self.connect((self.blocks_add_xx_0_0_0, 0), (self.blocks_multiply_xx_0_0_0_0_0, 0))
         self.connect((self.blocks_add_xx_0_0_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.low_pass_filter_0_1_0_0, 0))
-        self.connect((self.blocks_multiply_xx_0_0_0_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_1_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_time_sink_x_0_1_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0_0_0, 0), (self.blocks_multiply_xx_0_2_0_0_1, 0))
+        self.connect((self.blocks_multiply_const_vxx_0_0_0_0, 0), (self.blocks_multiply_xx_0_2_0_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0_0_0_0_0, 0), (self.blocks_multiply_xx_0_2_0_0_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0_0_0_0_0_0, 0), (self.blocks_multiply_xx_0_2_0_0_0_0, 0))
+        self.connect((self.blocks_multiply_xx_0_0_0_0_0, 0), (self.low_pass_filter_0_1_0_0, 0))
         self.connect((self.blocks_multiply_xx_0_2_0_0, 0), (self.blocks_add_xx_0_0_0, 1))
         self.connect((self.blocks_multiply_xx_0_2_0_0_0, 0), (self.blocks_add_xx_0_0_0, 2))
         self.connect((self.blocks_multiply_xx_0_2_0_0_0_0, 0), (self.blocks_add_xx_0_0_0, 3))
@@ -325,13 +342,11 @@ class projeto(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_wavfile_source_0_1_0, 0), (self.blocks_throttle_0_2_0_1, 0))
         self.connect((self.blocks_wavfile_source_0_1_1, 0), (self.blocks_throttle_0_0_2_0, 0))
         self.connect((self.blocks_wavfile_source_0_1_2, 0), (self.blocks_throttle_0_2_0, 0))
-        self.connect((self.low_pass_filter_0_0_1_0, 0), (self.blocks_multiply_xx_0_2_0_0_1, 0))
-        self.connect((self.low_pass_filter_0_0_1_0_0, 0), (self.blocks_multiply_xx_0_2_0_0_0, 0))
-        self.connect((self.low_pass_filter_0_0_1_0_0_0, 0), (self.blocks_multiply_xx_0_2_0_0, 0))
-        self.connect((self.low_pass_filter_0_0_1_0_1, 0), (self.blocks_multiply_xx_0_2_0_0_0_0, 0))
-        self.connect((self.low_pass_filter_0_1_0_0, 0), (self.audio_sink_1_0, 0))
-        self.connect((self.low_pass_filter_0_1_0_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
-        self.connect((self.low_pass_filter_0_1_0_0, 0), (self.qtgui_time_sink_x_0_1_0, 0))
+        self.connect((self.low_pass_filter_0_0_1_0, 0), (self.blocks_multiply_const_vxx_0_0_0, 0))
+        self.connect((self.low_pass_filter_0_0_1_0_0, 0), (self.blocks_multiply_const_vxx_0_0_0_0_0, 0))
+        self.connect((self.low_pass_filter_0_0_1_0_0_0, 0), (self.blocks_multiply_const_vxx_0_0_0_0, 0))
+        self.connect((self.low_pass_filter_0_0_1_0_1, 0), (self.blocks_multiply_const_vxx_0_0_0_0_0_0, 0))
+        self.connect((self.low_pass_filter_0_1_0_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "projeto")
@@ -379,6 +394,23 @@ class projeto(gr.top_block, Qt.QWidget):
     def set_radio(self, radio):
         self.radio = radio
         self.analog_sig_source_x_0_1_2_0_0.set_frequency(35000+(self.radio*15000))
+
+    def get_ganho(self):
+        return self.ganho
+
+    def set_ganho(self, ganho):
+        self.ganho = ganho
+        self.blocks_multiply_const_vxx_0_0.set_k(1/self.ganho)
+        self.blocks_multiply_const_vxx_0_0_0.set_k(self.ganho)
+        self.blocks_multiply_const_vxx_0_0_0_0.set_k(self.ganho)
+        self.blocks_multiply_const_vxx_0_0_0_0_0.set_k(self.ganho)
+        self.blocks_multiply_const_vxx_0_0_0_0_0_0.set_k(self.ganho)
+
+    def get_delay(self):
+        return self.delay
+
+    def set_delay(self, delay):
+        self.delay = delay
 
     def get_An(self):
         return self.An
